@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class combatScript : MonoBehaviour {
 
     public Text mainText;
+    public int roundCounter;
     System.Random rnd = new System.Random();
 
     //private int hp;
@@ -20,7 +21,7 @@ public class combatScript : MonoBehaviour {
         public int Hp;
         public int Attack;
         public int Defence;
-        public int Dam;
+        public int Dam;        
 
         public Warrior(int hp, int attack, int defence, int dam, string name)
         {
@@ -60,8 +61,8 @@ public class combatScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         mainText.text = "";        
-        Warrior orc1 = new Warrior(10, 5, 5, 3, "Orc");                
-        Warrior player = new Warrior(10, 5, 5, 3, "Fjeldulf");
+        Warrior orc1 = new Warrior(10, 10, 5, 3, "Orc");                
+        Warrior player = new Warrior(10, 10, 5, 3, "Fjeldulf");
         Combat(player, orc1);
         
     }
@@ -73,8 +74,9 @@ public class combatScript : MonoBehaviour {
 
     public void Combat (Warrior w1, Warrior w2)
     {
-        mainText.text = "";
-        printNewline("The battle begins!");              
+        roundCounter += 1;
+        print(roundCounter);        
+        printNewline("A new battleround begins!");              
         int attackValueW1 = w1.CalcAttack(rnd);
         int attackValueW2 = w2.CalcAttack(rnd);
         int defenceValueW1 = w1.CalcDefence(rnd);
@@ -103,6 +105,33 @@ public class combatScript : MonoBehaviour {
         
         printNewline(w1.Name + " has " + w1.Hp + " HP left");
         printNewline(w2.Name + " has " + w2.Hp + "HP left");
+        if (w1.Hp > 0 && w2.Hp > 0)
+        {
+            print("combat carries on");        
+            Combat(w2, w1);
+        }
+        else
+        {
+            print("combat is over");
+            if (w1.Hp < 1 && w2.Hp < 1) 
+            {
+                printNewline(w1.Name + " and " + w2.Name + "are both dead");
+                printNewline(" nobody is Victorious");
+            }
+            else
+            {
+                if (w1.Hp < 1)
+                {
+                    printNewline(w1.Name + " has been slain");
+                    printNewline(w2.Name + " is victorious");
+                }
+                else
+                {
+                    printNewline(w2.Name + " has been slain");
+                    printNewline(w1.Name + " is victorious");
+                }
+            }
+        }
     }
 
     public void printNewline(string newText)
