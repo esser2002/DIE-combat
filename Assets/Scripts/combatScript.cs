@@ -1,0 +1,112 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class combatScript : MonoBehaviour {
+
+    public Text mainText;
+    System.Random rnd = new System.Random();
+
+    //private int hp;
+    //private int attack;
+    //private int defence;
+    //private int dam;
+
+
+    public class Warrior
+    {
+        public string Name;
+        public int Hp;
+        public int Attack;
+        public int Defence;
+        public int Dam;
+
+        public Warrior(int hp, int attack, int defence, int dam, string name)
+        {
+            Hp = hp;
+            Attack = attack;
+            Defence = defence;
+            Dam = dam;
+            Name = name;
+        } 
+
+        public void TakeDamage(int dam)
+        {
+            Hp -= dam;
+        }
+
+        public int CalcAttack(System.Random rnd)
+        {
+            return (rnd.Next(1, Attack +1));
+        }       
+
+       public int CalcDefence(System.Random rnd)
+        {
+            return (rnd.Next(1, Defence + 1));
+        }
+
+        public int CalcDamage(System.Random rnd)
+        {
+            return (rnd.Next(1, Dam +1) + Dam);
+        }
+
+        public override string ToString()
+        {
+            return Name + " HP: " + Hp;
+        }
+    }
+
+	// Use this for initialization
+	void Start () {
+        mainText.text = "";        
+        Warrior orc1 = new Warrior(10, 5, 5, 3, "Orc");                
+        Warrior player = new Warrior(10, 5, 5, 3, "Fjeldulf");
+        Combat(player, orc1);
+        
+    }
+	
+	// Update is called once per frame
+	void Update () {
+		
+	}
+
+    public void Combat (Warrior w1, Warrior w2)
+    {
+        mainText.text = "";
+        printNewline("The battle begins!");              
+        int attackValueW1 = w1.CalcAttack(rnd);
+        int attackValueW2 = w2.CalcAttack(rnd);
+        int defenceValueW1 = w1.CalcDefence(rnd);
+        int defenceValueW2 = w2.CalcDefence(rnd);        
+        if (attackValueW1 > defenceValueW2)
+        {
+            int currentDam = w1.CalcDamage(rnd);
+            w2.TakeDamage(currentDam);
+            printNewline(w1.Name + " strikes " + w2.Name + " for " + currentDam + " points of damage");
+        }
+        else
+        {
+            printNewline(w1.Name + " is parried by " + w2.Name);
+        }
+        
+        if (attackValueW2 > defenceValueW1)
+        {
+            int currentDam = w2.CalcDamage(rnd);
+            w1.TakeDamage(currentDam);
+            printNewline(w2.Name + " strikes " + w1.Name + " for " + currentDam + " points of damage");
+        }
+        else
+        {
+            printNewline(w2.Name + " is parried by " + w1.Name);
+        }
+        
+        printNewline(w1.Name + " has " + w1.Hp + " HP left");
+        printNewline(w2.Name + " has " + w2.Hp + "HP left");
+    }
+
+    public void printNewline(string newText)
+    {        
+        mainText.text += newText.ToString() + "\n";        
+    }
+}
