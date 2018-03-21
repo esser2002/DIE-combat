@@ -29,6 +29,11 @@ public class combatScript : MonoBehaviour {
         }
     }
 
+    public class Item
+    {
+
+    }
+
     public class Warrior
     {
         public string Name;
@@ -39,6 +44,7 @@ public class combatScript : MonoBehaviour {
         public int DefenceEffective;
         public int Dam;
         public Weapon EquippedWeapon;
+        public List<Item> Inventory;
 
         public Warrior(int hp, int attack, int defence, string name, Weapon weapon)
         {
@@ -84,13 +90,11 @@ public class combatScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        mainText.text = "";
-        print(rnd.Next(1, 100));
+        mainText.text = "";        
         Weapon Axe = new Weapon(4, 0, 0, "axe");
         Warrior orc1 = new Warrior(1, 10, 5, "Orc", Axe);                
         Warrior player = new Warrior(10, 10, 5, "Fjeldulf", Axe);
-        Warrior Gundar = new Warrior(10, 5, 5, "Gundar", Axe);
-        print("Orc effective attack: " + orc1.AttackEffective);
+        Warrior Gundar = new Warrior(10, 5, 5, "Gundar", Axe);        
         CombatStart(player, orc1);
         CombatStart(player, Gundar);
         
@@ -105,18 +109,17 @@ public class combatScript : MonoBehaviour {
     {
         PrintNewline("The combat begins!");
         roundCounter = 0;
-        CombatOverCheck(w1, w2);
+        CombatOverCheck(w1, w2, true);
     }
 
+    // The body of combat rounds. Ends in CombatOverCheck() or a result
     public void CombatRound (Warrior w1, Warrior w2)
     {
         roundCounter += 1;     
-        int attackValueW1 = w1.CalcAttack(rnd);
-        print(attackValueW1);
+        int attackValueW1 = w1.CalcAttack(rnd);        
         int attackValueW2 = w2.CalcAttack(rnd);
         int defenceValueW1 = w1.CalcDefence(rnd);
-        int defenceValueW2 = w2.CalcDefence(rnd);
-        print(defenceValueW2);
+        int defenceValueW2 = w2.CalcDefence(rnd);        
         if (attackValueW1 > defenceValueW2)
         {
             int currentDam = w1.CalcDamage(rnd);
@@ -138,17 +141,20 @@ public class combatScript : MonoBehaviour {
         {
             PrintParry(w2, w1);
         }
-        CombatOverCheck(w1, w2);
+        CombatOverCheck(w1, w2, false);
         
     }
 
-    public void CombatOverCheck(Warrior w1, Warrior w2)
+    public void CombatOverCheck(Warrior w1, Warrior w2, bool firstRound)
     {
         PrintNewline(w1.Name + " has " + w1.Hp + " HP left");
         PrintNewline(w2.Name + " has " + w2.Hp + "HP left");
         if (w1.Hp > 0 && w2.Hp > 0)
         {
-            PrintNewline("Combat carries on");
+            if (!firstRound)
+            {
+                PrintNewline("Combat carries on");
+            }
             CombatRound(w1, w2);
         }
         else
