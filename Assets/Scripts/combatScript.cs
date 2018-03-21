@@ -91,7 +91,7 @@ public class combatScript : MonoBehaviour {
         {
             printNewline(w1.Name + " is parried by " + w2.Name);
         }
-        
+        //yield return new WaitForSeconds(2);
         if (attackValueW2 > defenceValueW1)
         {
             int currentDam = w2.CalcDamage(rnd);
@@ -102,12 +102,13 @@ public class combatScript : MonoBehaviour {
         {
             printNewline(w2.Name + " is parried by " + w1.Name);
         }
-        
+        //yield return new WaitForSeconds(2);
         printNewline(w1.Name + " has " + w1.Hp + " HP left");
         printNewline(w2.Name + " has " + w2.Hp + "HP left");
         if (w1.Hp > 0 && w2.Hp > 0)
         {
-            print("combat carries on");        
+            print("combat carries on");
+            //yield return new WaitForSeconds(5);
             Combat(w2, w1);
         }
         else
