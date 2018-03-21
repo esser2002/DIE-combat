@@ -62,7 +62,7 @@ public class combatScript : MonoBehaviour {
 	void Start () {
         mainText.text = "";        
         Warrior orc1 = new Warrior(1, 10, 5, 3, "Orc");                
-        Warrior player = new Warrior(1, 10, 5, 3, "Fjeldulf");
+        Warrior player = new Warrior(10, 10, 5, 3, "Fjeldulf");
         Warrior Gundar = new Warrior(10, 5, 5, 2, "Gundar");
         CombatStart(player, orc1);
         CombatStart(player, Gundar);
