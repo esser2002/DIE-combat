@@ -29,9 +29,26 @@ public class combatScript : MonoBehaviour {
         }
     }
 
+    public class OffHand
+    {
+        public string Name;
+        public int DefenceBonus;
+        public bool LightSource;
+        public string Type;
+        
+
+        public OffHand(int defbonus, bool lightsource, string name, string type)
+        {
+            DefenceBonus = defbonus;
+            LightSource = lightsource;
+            Name = name;
+            Type = type;
+        }
+    }
+
     public class Item
     {
-
+        //public interface IActiveEffect { };       
     }
 
     public class Warrior
@@ -44,15 +61,18 @@ public class combatScript : MonoBehaviour {
         public int DefenceEffective;
         public int Dam;
         public Weapon EquippedWeapon;
+        public OffHand EquippedOffHand;
         public List<Item> Inventory;
 
-        public Warrior(int hp, int attack, int defence, string name, Weapon weapon)
+        public Warrior(int hp, int attack, int defence, string name, Weapon weapon, OffHand offhand)
         {
             Hp = hp;
             AttackTrue = attack;
             DefenceTrue = defence;            
             Name = name;
             EquippedWeapon = weapon;
+            EquippedOffHand = offhand;
+
             UpdateStats();
         } 
         public void UpdateStats()
@@ -74,12 +94,12 @@ public class combatScript : MonoBehaviour {
 
        public int CalcDefence(System.Random rnd)
         {
-            return (rnd.Next(1, DefenceEffective + 1));
+            return (rnd.Next(1, DefenceEffective + 1) + EquippedOffHand.DefenceBonus);
         }
 
         public int CalcDamage(System.Random rnd)
         {
-            return (rnd.Next(1, Dam +1) + Dam);
+            return (rnd.Next(0, Dam +1) + Dam);
         }
 
         public override string ToString()
@@ -92,9 +112,11 @@ public class combatScript : MonoBehaviour {
 	void Start () {
         mainText.text = "";        
         Weapon Axe = new Weapon(4, 0, 0, "axe");
-        Warrior orc1 = new Warrior(1, 10, 5, "Orc", Axe);                
-        Warrior player = new Warrior(10, 10, 5, "Fjeldulf", Axe);
-        Warrior Gundar = new Warrior(10, 5, 5, "Gundar", Axe);        
+        OffHand none = new OffHand(0, false, "nothing", "NONE");
+        OffHand shield = new OffHand(3, false, "shield", "SHIELD");
+        Warrior orc1 = new Warrior(1, 10, 5, "Orc", Axe, none);                
+        Warrior player = new Warrior(10, 10, 5, "Fjeldulf", Axe, none);
+        Warrior Gundar = new Warrior(10, 8, 5, "Gundar", Axe, shield);       
         CombatStart(player, orc1);
         CombatStart(player, Gundar);
         
@@ -192,6 +214,24 @@ public class combatScript : MonoBehaviour {
 
     public void PrintParry(Warrior attacker, Warrior defender)
     {
-        PrintNewline(attacker.Name + "'s " + attacker.EquippedWeapon.Name + " is parried by " + defender.Name);
+        if (ShieldWeild(defender.EquippedOffHand))
+        {
+            PrintNewline(attacker.Name + "'s attack is blocked by " + defender.Name + "'s " + defender.EquippedOffHand.Name);
+        }
+        else
+        {
+            PrintNewline(attacker.Name + "'s " + attacker.EquippedWeapon.Name + " is parried by " + defender.Name);
+        }        
+    }
+    public bool ShieldWeild(OffHand offHand)
+    {
+        if (offHand.Type == "SHIELD")
+        {
+            return (true);
+        }
+        else
+        {
+            return (false);
+        }
     }
 }
