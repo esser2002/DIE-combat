@@ -13,24 +13,48 @@ public class combatScript : MonoBehaviour {
     //private int attack;
     //private int defence;
     //private int dam;
+    public class Weapon
+    {
+        public string Name;
+        public int Dam;
+        public int AttackMod;
+        public int DefenceMod;
 
+        public Weapon(int dam, int attmod, int defmod, string name)
+        {
+            Dam = dam;
+            AttackMod = attmod;
+            DefenceMod = defmod;
+            Name = name;
+        }
+    }
 
     public class Warrior
     {
         public string Name;
         public int Hp;
-        public int Attack;
-        public int Defence;
-        public int Dam;        
+        public int AttackTrue;
+        public int DefenceTrue;
+        public int AttackEffective;
+        public int DefenceEffective;
+        public int Dam;
+        public Weapon EquippedWeapon;
 
-        public Warrior(int hp, int attack, int defence, int dam, string name)
+        public Warrior(int hp, int attack, int defence, string name, Weapon weapon)
         {
             Hp = hp;
-            Attack = attack;
-            Defence = defence;
-            Dam = dam;
+            AttackTrue = attack;
+            DefenceTrue = defence;            
             Name = name;
+            EquippedWeapon = weapon;
+            UpdateStats();
         } 
+        public void UpdateStats()
+        {
+            AttackEffective = AttackTrue + EquippedWeapon.AttackMod;
+            DefenceEffective = DefenceTrue + EquippedWeapon.DefenceMod;
+            Dam = EquippedWeapon.Dam;
+        }
 
         public void TakeDamage(int dam)
         {
@@ -39,12 +63,12 @@ public class combatScript : MonoBehaviour {
 
         public int CalcAttack(System.Random rnd)
         {
-            return (rnd.Next(1, Attack +1));
+            return (rnd.Next(1, AttackEffective +1));
         }       
 
        public int CalcDefence(System.Random rnd)
         {
-            return (rnd.Next(1, Defence + 1));
+            return (rnd.Next(1, DefenceEffective + 1));
         }
 
         public int CalcDamage(System.Random rnd)
@@ -60,10 +84,13 @@ public class combatScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        mainText.text = "";        
-        Warrior orc1 = new Warrior(1, 10, 5, 3, "Orc");                
-        Warrior player = new Warrior(10, 10, 5, 3, "Fjeldulf");
-        Warrior Gundar = new Warrior(10, 5, 5, 2, "Gundar");
+        mainText.text = "";
+        print(rnd.Next(1, 100));
+        Weapon Axe = new Weapon(4, 0, 0, "axe");
+        Warrior orc1 = new Warrior(1, 10, 5, "Orc", Axe);                
+        Warrior player = new Warrior(10, 10, 5, "Fjeldulf", Axe);
+        Warrior Gundar = new Warrior(10, 5, 5, "Gundar", Axe);
+        print("Orc effective attack: " + orc1.AttackEffective);
         CombatStart(player, orc1);
         CombatStart(player, Gundar);
         
@@ -76,77 +103,89 @@ public class combatScript : MonoBehaviour {
 
     public void CombatStart(Warrior w1, Warrior w2)
     {
-        printNewline("The combat begins!");
+        PrintNewline("The combat begins!");
         roundCounter = 0;
-        combatOverCheck(w1, w2);
+        CombatOverCheck(w1, w2);
     }
 
     public void CombatRound (Warrior w1, Warrior w2)
     {
         roundCounter += 1;     
         int attackValueW1 = w1.CalcAttack(rnd);
+        print(attackValueW1);
         int attackValueW2 = w2.CalcAttack(rnd);
         int defenceValueW1 = w1.CalcDefence(rnd);
-        int defenceValueW2 = w2.CalcDefence(rnd);        
+        int defenceValueW2 = w2.CalcDefence(rnd);
+        print(defenceValueW2);
         if (attackValueW1 > defenceValueW2)
         {
             int currentDam = w1.CalcDamage(rnd);
             w2.TakeDamage(currentDam);
-            printNewline(w1.Name + " strikes " + w2.Name + " for " + currentDam + " points of damage");
+            PrintHitAttack(w1, w2, currentDam);
         }
         else
         {
-            printNewline(w1.Name + " is parried by " + w2.Name);
+            PrintParry(w1, w2);
         }
         
         if (attackValueW2 > defenceValueW1)
         {
             int currentDam = w2.CalcDamage(rnd);
             w1.TakeDamage(currentDam);
-            printNewline(w2.Name + " strikes " + w1.Name + " for " + currentDam + " points of damage");
+            PrintHitAttack(w2, w1, currentDam);
         }
         else
         {
-            printNewline(w2.Name + " is parried by " + w1.Name);
+            PrintParry(w2, w1);
         }
-        combatOverCheck(w1, w2);
+        CombatOverCheck(w1, w2);
         
     }
 
-    public void combatOverCheck(Warrior w1, Warrior w2)
+    public void CombatOverCheck(Warrior w1, Warrior w2)
     {
-        printNewline(w1.Name + " has " + w1.Hp + " HP left");
-        printNewline(w2.Name + " has " + w2.Hp + "HP left");
+        PrintNewline(w1.Name + " has " + w1.Hp + " HP left");
+        PrintNewline(w2.Name + " has " + w2.Hp + "HP left");
         if (w1.Hp > 0 && w2.Hp > 0)
         {
-            printNewline("combat carries on");
-            CombatRound(w2, w1);
+            PrintNewline("Combat carries on");
+            CombatRound(w1, w2);
         }
         else
         {            
             if (w1.Hp < 1 && w2.Hp < 1)
             {
-                printNewline(w1.Name + " and " + w2.Name + " are both dead");
-                printNewline("Nobody is Victorious");
+                PrintNewline(w1.Name + " and " + w2.Name + " are both dead");
+                PrintNewline("Nobody is Victorious");
             }
             else
             {
                 if (w1.Hp < 1)
                 {
-                    printNewline(w1.Name + " has been slain");
-                    printNewline(w2.Name + " is victorious");
+                    PrintNewline(w1.Name + " has been slain");
+                    PrintNewline(w2.Name + " is victorious");
                 }
                 else
                 {
-                    printNewline(w2.Name + " has been slain");
-                    printNewline(w1.Name + " is victorious");
+                    PrintNewline(w2.Name + " has been slain");
+                    PrintNewline(w1.Name + " is victorious");
                 }
             }
         }
     }
 
-    public void printNewline(string newText)
+    public void PrintNewline(string newText)
     {        
         mainText.text += newText.ToString() + "\n";        
+    }
+
+    public void PrintHitAttack(Warrior attacker, Warrior defender, int currentDam)
+    {
+        PrintNewline(attacker.Name + " strikes " + defender.Name + " with his " + attacker.EquippedWeapon.Name + " for " + currentDam + " points of damage");
+    }
+
+    public void PrintParry(Warrior attacker, Warrior defender)
+    {
+        PrintNewline(attacker.Name + "'s " + attacker.EquippedWeapon.Name + " is parried by " + defender.Name);
     }
 }
