@@ -8,6 +8,7 @@ public class combatScript : MonoBehaviour {
     public Text mainText;
     public int roundCounter;
     System.Random rnd = new System.Random();
+    public int orcsSlain;
 
     //private int hp;
     //private int attack;
@@ -33,14 +34,14 @@ public class combatScript : MonoBehaviour {
     {
         public string Name;
         public int DefenceBonus;
-        public bool LightSource;
+        public int DefenceMod;
         public string Type;
         
 
-        public OffHand(int defbonus, bool lightsource, string name, string type)
+        public OffHand(int defbonus, int defencemod, string name, string type)
         {
             DefenceBonus = defbonus;
-            LightSource = lightsource;
+            DefenceBonus = defencemod;
             Name = name;
             Type = type;
         }
@@ -112,14 +113,27 @@ public class combatScript : MonoBehaviour {
 	void Start () {
         mainText.text = "";        
         Weapon Axe = new Weapon(4, 0, 0, "axe");
-        OffHand none = new OffHand(0, false, "nothing", "NONE");
-        OffHand shield = new OffHand(3, false, "shield", "SHIELD");
-        Warrior orc1 = new Warrior(1, 10, 5, "Orc", Axe, none);                
-        Warrior player = new Warrior(10, 10, 5, "Fjeldulf", Axe, none);
-        Warrior Gundar = new Warrior(10, 8, 5, "Gundar", Axe, shield);       
-        CombatStart(player, orc1);
-        CombatStart(player, Gundar);
-        
+        OffHand none = new OffHand(0, 0, "nothing", "NONE");
+        OffHand shield = new OffHand(1, 3, "shield", "SHIELD");        
+        Warrior player = new Warrior(10, 10, 10, "Fjeldulf", Axe, none);
+        Warrior Gundar = new Warrior(10, 10, 5, "Gundar", Axe, shield);
+//Warrior orc1 = new Warrior(5, 10, 5, "Orc", Axe, none);
+
+        List<Warrior> orcs = new List<Warrior>();
+        for (int i = 0; player.Hp > 0; i++)
+        {
+            orcs.Add(new Warrior(5, 10, 5, "Orc", Axe, none));
+            CombatStart(player, orcs[i]);
+            orcsSlain = i;
+        }
+        PrintNewline(player.Name + " died after slaying " + orcsSlain + " orcs");
+        // for (int i = 0; 0 < player.Hp; i++)
+        // {
+        //     Warrior orci = new 
+        // }
+        //CombatStart(player, orc1);        
+        //CombatStart(player, Gundar);
+
     }
 	
 	// Update is called once per frame
