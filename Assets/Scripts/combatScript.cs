@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class combatScript : MonoBehaviour {
+public class combatScript : MonoBehaviour
+{
 
     public Text mainText;
     public int roundCounter;
@@ -36,7 +37,7 @@ public class combatScript : MonoBehaviour {
         public int DefenceBonus;
         public int DefenceMod;
         public string Type;
-        
+
 
         public OffHand(int defbonus, int defencemod, string name, string type)
         {
@@ -69,13 +70,13 @@ public class combatScript : MonoBehaviour {
         {
             Hp = hp;
             AttackTrue = attack;
-            DefenceTrue = defence;            
+            DefenceTrue = defence;
             Name = name;
             EquippedWeapon = weapon;
             EquippedOffHand = offhand;
 
             UpdateStats();
-        } 
+        }
         public void UpdateStats()
         {
             AttackEffective = AttackTrue + EquippedWeapon.AttackMod;
@@ -90,17 +91,30 @@ public class combatScript : MonoBehaviour {
 
         public int CalcAttack(System.Random rnd)
         {
-            return (rnd.Next(1, AttackEffective +1));
-        }       
+            return (rnd.Next(1, AttackEffective + 1));
+        }
 
-       public int CalcDefence(System.Random rnd)
+        public int CalcDefence(System.Random rnd)
         {
             return (rnd.Next(1, DefenceEffective + 1) + EquippedOffHand.DefenceBonus);
         }
 
+        public int CalcDefenceMultibleOpponents(System.Random rnd, int enemies)
+        {
+            return ((rnd.Next(1, DefenceEffective + 1) / enemies) + EquippedOffHand.DefenceBonus);
+        }
+
         public int CalcDamage(System.Random rnd)
         {
-            return (rnd.Next(0, Dam +1) + Dam);
+            return (rnd.Next(0, Dam + 1) + Dam);
+        }
+
+        public bool Alive()
+        {
+            if (Hp > 0)
+                return (true);
+            else
+                return (false);
         }
 
         public override string ToString()
@@ -109,37 +123,39 @@ public class combatScript : MonoBehaviour {
         }
     }
 
-	// Use this for initialization
-	void Start () {
-        mainText.text = "";        
+    // Use this for initialization
+    void Start()
+    {
+        mainText.text = "";
         Weapon Axe = new Weapon(4, 0, 0, "axe");
         OffHand none = new OffHand(0, 0, "nothing", "NONE");
-        OffHand shield = new OffHand(1, 3, "shield", "SHIELD");        
-        Warrior player = new Warrior(10, 10, 10, "Fjeldulf", Axe, none);
+        OffHand shield = new OffHand(1, 3, "shield", "SHIELD");
+        Warrior player = new Warrior(10, 10, 10, "Fjeldulf", Axe, shield);
         Warrior Gundar = new Warrior(10, 10, 5, "Gundar", Axe, shield);
-//Warrior orc1 = new Warrior(5, 10, 5, "Orc", Axe, none);
+        //Warrior orc1 = new Warrior(5, 10, 5, "Orc", Axe, none);
 
         List<Warrior> orcs = new List<Warrior>();
-        for (int i = 0; player.Hp > 0; i++)
+        for (int i = 0; i < 3; i++)
         {
-            orcs.Add(new Warrior(5, 10, 5, "Orc", Axe, none));
-            CombatStart(player, orcs[i]);
-            orcsSlain = i;
-        }
-        PrintNewline(player.Name + " died after slaying " + orcsSlain + " orcs");
+            orcs.Add(new Warrior(5, 5, 5, "Orc", Axe, none));
+        }                
+        GroupCombatStart(player, orcs);
+        //PrintNewline(player.Name + " died after slaying " + orcsSlain + " orcs");
         // for (int i = 0; 0 < player.Hp; i++)
         // {
         //     Warrior orci = new 
         // }
         //CombatStart(player, orc1);        
         //CombatStart(player, Gundar);
+        
 
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     public void CombatStart(Warrior w1, Warrior w2)
     {
@@ -148,14 +164,14 @@ public class combatScript : MonoBehaviour {
         CombatOverCheck(w1, w2, true);
     }
 
-    // The body of combat rounds. Ends in CombatOverCheck() or a result
-    public void CombatRound (Warrior w1, Warrior w2)
+    // The body of combat rounds. Ends in CombatOverCheck()
+    public void CombatRound(Warrior w1, Warrior w2)
     {
-        roundCounter += 1;     
-        int attackValueW1 = w1.CalcAttack(rnd);        
+        roundCounter += 1;
+        int attackValueW1 = w1.CalcAttack(rnd);
         int attackValueW2 = w2.CalcAttack(rnd);
         int defenceValueW1 = w1.CalcDefence(rnd);
-        int defenceValueW2 = w2.CalcDefence(rnd);        
+        int defenceValueW2 = w2.CalcDefence(rnd);
         if (attackValueW1 > defenceValueW2)
         {
             int currentDam = w1.CalcDamage(rnd);
@@ -166,7 +182,7 @@ public class combatScript : MonoBehaviour {
         {
             PrintParry(w1, w2);
         }
-        
+
         if (attackValueW2 > defenceValueW1)
         {
             int currentDam = w2.CalcDamage(rnd);
@@ -178,14 +194,14 @@ public class combatScript : MonoBehaviour {
             PrintParry(w2, w1);
         }
         CombatOverCheck(w1, w2, false);
-        
+
     }
 
     public void CombatOverCheck(Warrior w1, Warrior w2, bool firstRound)
     {
         PrintNewline(w1.Name + " has " + w1.Hp + " HP left");
         PrintNewline(w2.Name + " has " + w2.Hp + "HP left");
-        if (w1.Hp > 0 && w2.Hp > 0)
+        if (w1.Alive() && w2.Alive())
         {
             if (!firstRound)
             {
@@ -194,15 +210,15 @@ public class combatScript : MonoBehaviour {
             CombatRound(w1, w2);
         }
         else
-        {            
-            if (w1.Hp < 1 && w2.Hp < 1)
+        {
+            if (!w1.Alive() && !w2.Alive())
             {
                 PrintNewline(w1.Name + " and " + w2.Name + " are both dead");
                 PrintNewline("Nobody is Victorious");
             }
             else
             {
-                if (w1.Hp < 1)
+                if (!w1.Alive())
                 {
                     PrintNewline(w1.Name + " has been slain");
                     PrintNewline(w2.Name + " is victorious");
@@ -216,9 +232,85 @@ public class combatScript : MonoBehaviour {
         }
     }
 
-    public void PrintNewline(string newText)
+    public void GroupCombatStart(Warrior w1, List<Warrior> group)
+    {
+        PrintNewline("The combat begins!");
+        roundCounter = 0;
+        GroupCombatOverCheck(w1, group, true);
+    }
+
+    public void GroupCombatRound(Warrior w1, List<Warrior> group)
     {        
-        mainText.text += newText.ToString() + "\n";        
+        roundCounter += 1;
+        int attackValueW1 = w1.CalcAttack(rnd);
+        int defenceValueG1 = group[0].CalcDefence(rnd);
+        if (attackValueW1 > defenceValueG1)
+        {
+            int currentDam = w1.CalcDamage(rnd);
+            group[0].TakeDamage(currentDam);
+            PrintHitAttack(w1, group[0], currentDam);
+
+        }
+        else
+            PrintParry(w1, group[0]);
+        for (int i = 0; i < group.Count; i++)
+        {
+            if (group[0].CalcAttack(rnd) > w1.CalcDefenceMultibleOpponents(rnd, group.Count))
+            {
+                int currentDam = group[0].CalcDamage(rnd);
+                w1.TakeDamage(currentDam);
+                PrintHitAttack(group[i], w1, currentDam);
+            }
+            else
+                PrintParry(group[i], w1);
+        }
+        print("b4 dead members are removed");
+        RemoveDeadMembers(group);
+        print("dead members removed. " + group.Count + " members left");
+        GroupCombatOverCheck(w1, group, false);
+
+    }
+
+    public void GroupCombatOverCheck(Warrior w1, List<Warrior> group, bool firstround)
+    {
+        PrintNewline(w1.Name + " has " + w1.Hp + " HP left");
+        for (int i = 0; i < group.Count; i++)
+        {
+            PrintNewline(group[i].Name + " has " + group[i].Hp + " HP left");
+        }
+        if (w1.Alive() && GroupAlive(group))
+        {            
+            if (!firstround)
+            {
+                PrintNewline("Combat carries on");
+            }
+            GroupCombatRound(w1, group);
+        }
+        else
+        {
+            if (!w1.Alive() && !GroupAlive(group))
+            {
+                PrintNewline("All combetants have been slain");
+                PrintNewline("Nobody is victorious");
+            }
+            else
+            {
+                if (!w1.Alive())
+                {
+                    PrintNewline(w1.Name + " has been slain");
+                    PrintNewline(group[0].Name + " and his group is victorious");
+                }
+                else
+                {
+                    PrintNewline(" and his group has been slain");
+                    PrintNewline(w1.Name + " is victorious");
+                }
+            }
+        }
+    }
+    public void PrintNewline(string newText)
+    {
+        mainText.text += newText.ToString() + "\n";
     }
 
     public void PrintHitAttack(Warrior attacker, Warrior defender, int currentDam)
@@ -235,8 +327,29 @@ public class combatScript : MonoBehaviour {
         else
         {
             PrintNewline(attacker.Name + "'s " + attacker.EquippedWeapon.Name + " is parried by " + defender.Name);
-        }        
+        }
     }
+
+    public bool GroupAlive(List<Warrior> group)
+    {
+        print("groupAlive triggered");
+        int livecount = 0;
+        for (int i = 0; i < group.Count; i++)
+        {            
+            if (group[i].Alive())
+            {
+                livecount += 1;
+            }            
+        }
+        if (livecount == 0)
+        {
+            return false;
+
+        }
+        else
+            return true;
+    }
+
     public bool ShieldWeild(OffHand offHand)
     {
         if (offHand.Type == "SHIELD")
@@ -246,6 +359,23 @@ public class combatScript : MonoBehaviour {
         else
         {
             return (false);
+        }
+    }
+    public void RemoveDeadMembers(List<Warrior> group)
+    {
+        List<int> whomsveToRemove = new List<int>();
+        for (int i = group.Count - 1; i >= 0 ; i--)
+        {            
+            if (!group[i].Alive())
+            {
+                whomsveToRemove.Add(i);
+                PrintNewline(group[i].Name + " has been slain");
+            }
+                
+        }
+        for (int i = 0; i < whomsveToRemove.Count; i++)
+        {
+            group.RemoveAt(whomsveToRemove[i]); 
         }
     }
 }
